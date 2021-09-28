@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.8)
-project(gr-liquidDSP CXX)
+project(gr-liquidDSP CXX C)
 
 set(CMAKE_BUILD_TYPE "Debug")
 #set(CMAKE_BUILD_TYPE "Release")
 
 
+set(VERSION_MAJOR 0)
+set(VERSION_API   0)
+set(VERSION_ABI   0)
 
 
 ########################################################################
@@ -12,6 +15,7 @@ set(CMAKE_BUILD_TYPE "Debug")
 ########################################################################
 add_definitions(-fvisibility=hidden)
 set(CMAKE_CXX_STANDARD 11)
+
 
 ########################################################################
 # Install directories

@@ -2,10 +2,11 @@
 ########################################################################
 # Setup library
 ########################################################################
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(liquid-dsp REQUIRED IMPORTED_TARGET liquid-dsp)
 
-add_library(gnuradio-liquidDSP SHARED filter_impl.cc)
-target_link_libraries(gnuradio-liquidDSP gnuradio::gnuradio-runtime)
-
+add_library(gnuradio-liquidDSP SHARED filter_impl.cc debug.c)
+target_link_libraries(gnuradio-liquidDSP gnuradio::gnuradio-runtime PkgConfig::liquid-dsp)
 
 ########################################################################
 # Install built library files

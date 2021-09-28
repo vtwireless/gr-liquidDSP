@@ -2,7 +2,7 @@
 ########################################################################
 # Include swig generation macros
 ########################################################################
-find_package(SWIG)
+find_package(SWIG REQUIRED)
 
 include(GrSwig)
 include(GrPython)

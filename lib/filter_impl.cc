@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <limits.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -14,7 +10,41 @@
 
 #include <gnuradio/io_signature.h>
 
+#include <liquid.h>
+
 #include "filter.h"
+#include "debug.h"
+
+
+#define NUM_SUBCARRIERS (64)
+#define CP_LEN  (16)
+#define TAPER_LEN (4)
+
+
+// Liquid-DSP docs:
+//
+// https://liquidsdr.org/doc/ofdmflexframe/
+//
+
+extern "C" {
+// We grouped together a few sets of liquidDSP modulation schemes and
+// Forward Error Correction schemes that we share as a single parameter
+// with the CRTS parameter API.
+struct mod_error_corr_scheme {
+
+    uint32_t mode; // We use as the parameter value.
+
+    // modulation scheme
+    modulation_scheme mod;
+
+    // FEC (Forward Error Correction) scheme
+    fec_scheme fec;
+
+    // CRTS parameter name.
+    const char *scheme_name;
+};
+}
+
 
 
 namespace gr {
@@ -42,6 +72,83 @@ namespace gr {
       int read_process_output(uint8_t *out, int nitems);
       int write_process_input(const uint8_t *in, int nitems);
 
+
+
+static
+constexpr struct mod_error_corr_scheme
+  modes[12] = {
+
+  {  0, LIQUID_MODEM_BPSK,   LIQUID_FEC_GOLAY2412,  "r1/2 BPSK"       },
+  {  1, LIQUID_MODEM_BPSK,   LIQUID_FEC_HAMMING128, "r2/3 BPSK"       },
+  {  2, LIQUID_MODEM_QPSK,   LIQUID_FEC_GOLAY2412,  "r1/2 QPSK"       },
+  {  3, LIQUID_MODEM_QPSK,   LIQUID_FEC_HAMMING128, "r2/3 QPSK"       },
+  {  4, LIQUID_MODEM_QPSK,   LIQUID_FEC_SECDED7264, "r8/9 QPSK"       },
+  {  5, LIQUID_MODEM_QAM16,  LIQUID_FEC_HAMMING128, "r2/3 16-QAM"     },
+  {  6, LIQUID_MODEM_QAM16,  LIQUID_FEC_SECDED7264, "r8/9 16-QAM"     },
+  {  7, LIQUID_MODEM_QAM32,  LIQUID_FEC_SECDED7264, "r8/9 32-QAM"     },
+  {  8, LIQUID_MODEM_QAM64,  LIQUID_FEC_SECDED7264, "r8/9 64-QAM"     },
+  {  9, LIQUID_MODEM_QAM128, LIQUID_FEC_SECDED7264, "r8/9 128-QAM"    },
+  { 10, LIQUID_MODEM_QAM256, LIQUID_FEC_SECDED7264, "r8/9 256-QAM"    },
+  { 11, LIQUID_MODEM_QAM256, LIQUID_FEC_NONE,       "uncoded 256-QAM" }
+};
+
+
+
+
+
+
+
+
+
+      ofdmflexframegen fg = { 0 };
+      unsigned char *subcarrierAlloc = 0;
+      // Sizes of stream input to output in this ratio:
+        const size_t maxBytesIn = 1024;
+        const size_t maxBytesOut =
+            (NUM_SUBCARRIERS+CP_LEN)*maxBytesIn*sizeof(std::complex<float>);
+
+      // Liquid-DSP lets us add a uint64_t to every frame we send
+      // so we add a counter by using this variable.
+      uint64_t frameCount = 0;
+
+      // In this case gain is 10  ???
+      //static const float softGain = (powf(10.0F, -12.0F/20.0F));
+      const float softGain = (10.0);
+
+      int setMode(uint32_t i) {
+    const struct mod_error_corr_scheme *mode = modes + i;
+
+    ofdmflexframegenprops_s fgprops; // frame generator properties
+    ofdmflexframegenprops_init_default(&fgprops);
+    fgprops.check = LIQUID_CRC_32;
+    fgprops.fec1 = mode->fec;
+    fgprops.fec0 = LIQUID_FEC_NONE;
+    // WTF: How come this is a double?
+    fgprops.mod_scheme = (double) mode->mod;
+
+    if(!subcarrierAlloc) {
+        subcarrierAlloc = (unsigned char *) malloc(NUM_SUBCARRIERS);
+        ASSERT(subcarrierAlloc, "malloc() failed");
+        ofdmframe_init_default_sctype(NUM_SUBCARRIERS, subcarrierAlloc);
+    }
+
+
+    if(fg) {
+        ofdmflexframegen_setprops(fg, &fgprops);
+        frameCount = 0;
+    } else
+        fg = ofdmflexframegen_create(NUM_SUBCARRIERS, CP_LEN,
+                TAPER_LEN, subcarrierAlloc, &fgprops);
+
+    ASSERT(fg);
+
+    DSPEW("Set liquid frame scheme to (%" PRIu32
+            "): \"%s\"", mode->mode, mode->scheme_name);
+
+    return 0; // success
+    };
+
+
      public:
       filter_impl(size_t in_item_sz, const char *cmd);
       ~filter_impl();
@@ -58,6 +165,12 @@ namespace gr {
            gr_vector_void_star &output_items);
 
     };
+
+// Liquid-DSP docs:
+//
+// https://liquidsdr.org/doc/ofdmflexframe/
+//
+
 
     filter::sptr
     filter::make(size_t in_item_sz, const char *cmd)
@@ -77,6 +190,11 @@ namespace gr {
         d_out_item_sz (sizeof(std::complex<float>)),
         d_relative_rate (1.0)
     {
+      ofdmflexframegenprops_s fgprops;
+      ofdmflexframegenprops_init_default(&fgprops);
+      
+      std::cerr << "liquid DSP VERSION: " << liquid_version << std::endl;
+
       set_relative_rate(d_relative_rate);
       create_command_process(cmd);
     }
