@@ -1,5 +1,3 @@
-/* -*- c++ -*- */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -15,33 +13,69 @@
 #include <iostream>
 
 #include <gnuradio/io_signature.h>
-#include "filter_impl.h"
+
+#include "filter.h"
+
 
 namespace gr {
-  namespace pipe {
+  namespace liquidDSP {
+
+    class filter_impl : public filter
+    {
+     private:
+      size_t d_in_item_sz;
+      size_t d_out_item_sz;
+      double d_relative_rate;
+      bool   d_unbuffered;
+
+      // Runtime data
+      int d_cmd_stdin_pipe[2];
+      int d_cmd_stdout_pipe[2];
+      FILE *d_cmd_stdin;
+      FILE *d_cmd_stdout;
+      pid_t d_cmd_pid;
+
+      void create_command_process(const char *cmd);
+      void create_pipe(int pipe[2]);
+      void set_fd_flags(int fd, long flags);
+      void reset_fd_flags(int fd, long flags);
+      int read_process_output(uint8_t *out, int nitems);
+      int write_process_input(const uint8_t *in, int nitems);
+
+     public:
+      filter_impl(size_t in_item_sz, const char *cmd);
+      ~filter_impl();
+
+      // Where all the action really happens
+      void forecast (int noutput_items, gr_vector_int &ninput_items_required);
+
+      bool unbuffered () const;
+      void set_unbuffered (bool unbuffered);
+
+      int general_work(int noutput_items,
+           gr_vector_int &ninput_items,
+           gr_vector_const_void_star &input_items,
+           gr_vector_void_star &output_items);
+
+    };
 
     filter::sptr
-    filter::make(size_t in_item_sz, size_t out_item_sz, double relative_rate, const char *cmd)
+    filter::make(size_t in_item_sz, const char *cmd)
     {
       return gnuradio::get_initial_sptr
-        (new filter_impl(in_item_sz, out_item_sz, relative_rate, cmd));
+        (new filter_impl(in_item_sz, cmd));
     }
-
-    static const int MIN_IN = 1;   // mininum number of input streams
-    static const int MAX_IN = 1;   // maximum number of input streams
-    static const int MIN_OUT = 1;  // minimum number of output streams
-    static const int MAX_OUT = 1;  // maximum number of output streams
 
     /*
      * The private constructor
      */
-    filter_impl::filter_impl(size_t in_item_sz, size_t out_item_sz, double relative_rate, const char *cmd)
+    filter_impl::filter_impl(size_t in_item_sz, const char *cmd)
       : gr::block("filter",
-              gr::io_signature::make(MIN_IN, MAX_IN, in_item_sz),
-              gr::io_signature::make(MIN_OUT, MAX_OUT, out_item_sz)),
+              gr::io_signature::make(1, 1, in_item_sz),
+              gr::io_signature::make(1, 1, sizeof(std::complex<float>))),
         d_in_item_sz (in_item_sz),
-        d_out_item_sz (out_item_sz),
-        d_relative_rate (relative_rate)
+        d_out_item_sz (sizeof(std::complex<float>)),
+        d_relative_rate (1.0)
     {
       set_relative_rate(d_relative_rate);
       create_command_process(cmd);
@@ -269,5 +303,5 @@ namespace gr {
       return (n_produced);
     }
 
-  } /* namespace pipe */
+  } /* namespace liquidDSP */
 } /* namespace gr */

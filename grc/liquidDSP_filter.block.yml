@@ -1,0 +1,33 @@
+id: ofdmflexframegen
+label: ofdmflexframegen
+category: '[LiquidDSP]'
+
+parameters:
+- id: in_type
+  label: Input Type
+  dtype: enum
+  options: [complex, float, int, short, byte]
+  option_attributes:
+    size: [gr.sizeof_gr_complex, gr.sizeof_float, gr.sizeof_int,
+           gr.sizeof_short, gr.sizeof_char]
+  hide: part
+- id: command
+  label: Command
+  dtype: string
+
+inputs:
+- label: in
+  domain: stream
+  dtype: ${in_type}
+
+outputs:
+- label: out
+  domain: stream
+  dtype: complex
+
+templates:
+  imports: import liquidDSP
+  make: |-
+      liquidDSP.filter(${in_type.size}, ${command})
+
+file_format: 1

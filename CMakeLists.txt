@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
-project(gr-pipe CXX)
+project(gr-liquidDSP CXX)
 
 set(CMAKE_BUILD_TYPE "Debug")
+#set(CMAKE_BUILD_TYPE "Release")
+
 
 
 
@@ -17,14 +19,11 @@ set(CMAKE_CXX_STANDARD 11)
 find_package(Gnuradio "3.8" REQUIRED)
 include(GrVersion)
 
-include(GrPlatform) #define LIB_SUFFIX
 
+# GNU radio requires these next 3 lines:
+include(GrPlatform) #defines LIB_SUFFIX
 set(CMAKE_MODULES_DIR lib${LIB_SUFFIX}/cmake)
-
-# GR_INCLUDE_DIR is needed by swig
-set(GR_INCLUDE_DIR      include/pipe)
-set(GR_CMAKE_DIR        lib${LIB_SUFFIX}/cmake/pipe)
-set(GR_PKG_LIBEXEC_DIR  ${GR_LIBEXEC_DIR}/${CMAKE_PROJECT_NAME})
+set(GR_CMAKE_DIR lib${LIB_SUFFIX}/cmake/liquidDSP)
 
 
 ########################################################################

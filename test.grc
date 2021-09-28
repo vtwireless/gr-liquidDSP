@@ -207,6 +207,23 @@ blocks:
     coordinate: [824, 372.0]
     rotation: 0
     state: true
+- name: ofdmflexframegen_1
+  id: ofdmflexframegen
+  parameters:
+    affinity: ''
+    alias: ''
+    command: ./test_cmd
+    comment: ''
+    in_type: complex
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [721, 486]
+    rotation: 0
+    state: true
 - name: pfb_arb_resampler_xxx_0
   id: pfb_arb_resampler_xxx
   parameters:
@@ -226,28 +243,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [832, 188.0]
-    rotation: 0
-    state: true
-- name: pipe_filter_0
-  id: pipe_filter
-  parameters:
-    affinity: ''
-    alias: ''
-    command: cat
-    comment: ''
-    in_type: complex
-    in_vlen: '1'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    out_type: complex
-    out_vlen: '1'
-    rel_rate: '1.0'
-    unbuffered: 'False'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [737, 492]
     rotation: 0
     state: true
 - name: qtgui_sink_x_0
@@ -315,11 +310,11 @@ connections:
 - [analog_sig_source_x_0_0_0, '0', blocks_add_xx_0, '1']
 - [analog_sig_source_x_0_0_0_0, '0', blocks_add_xx_0, '3']
 - [analog_sig_source_x_0_0_1, '0', blocks_add_xx_0, '2']
-- [blocks_add_xx_0, '0', pipe_filter_0, '0']
+- [blocks_add_xx_0, '0', ofdmflexframegen_1, '0']
 - [blocks_throttle_0, '0', pfb_arb_resampler_xxx_0, '0']
 - [blocks_throttle_0, '0', qtgui_sink_x_0, '0']
+- [ofdmflexframegen_1, '0', blocks_throttle_0, '0']
 - [pfb_arb_resampler_xxx_0, '0', qtgui_sink_x_0_0, '0']
-- [pipe_filter_0, '0', blocks_throttle_0, '0']
 
 metadata:
   file_format: 1
