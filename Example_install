@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -xe
+
+name=gr-liquidDSP
+
+prefix=/usr/local/encap/${name}-00
+
+rm -rf ${prefix}
+
+rm -rf BUILD/
+
+mkdir -p BUILD
+
+
+cd BUILD
+cmake .. -G"Unix Makefiles"\
+ -DPYTHON_EXECUTABLE:FILEPATH=/usr/local/bin/python3\
+ -DCMAKE_INSTALL_PREFIX:PATH="${prefix}"\
+ -DCMAKE_INSTALL_RPATH:PATH="${prefix}/lib:/usr/local/lib"
+
+# it appears they made the build process interactive.
+make VERBOSE=1
+make install
+
+set +x
+
+cat << EOF
+
+   SUCCESSFULLY installed $name in $prefix
+
+EOF
+
