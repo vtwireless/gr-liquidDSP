@@ -96,8 +96,8 @@ constexpr struct mod_error_corr_scheme
       ::ofdmflexframegen fg = { 0 };
       unsigned char *subcarrierAlloc = 0;
       // Sizes of stream input to output in this ratio:
-        const size_t maxBytesIn = 1024;
-        const size_t maxBytesOut =
+      const size_t maxBytesIn = 1024;
+      const size_t maxBytesOut =
             (NUM_SUBCARRIERS+CP_LEN)*maxBytesIn*sizeof(std::complex<float>);
 
       // Liquid-DSP lets us add a uint64_t to every frame we send
