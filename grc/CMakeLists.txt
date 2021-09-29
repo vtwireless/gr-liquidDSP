@@ -1,3 +1,4 @@
 install(FILES
-    liquidDSP_filter.block.yml DESTINATION share/gnuradio/grc/blocks
+    liquidDSP_ofdmflexframegen.block.yml DESTINATION
+    share/gnuradio/grc/blocks
 )

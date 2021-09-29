@@ -8,8 +8,8 @@
 %include "liquidDSP_swig_doc.i"
 
 %{
-#include "filter.h"
+#include "ofdmflexframegen.h"
 %}
 
-%include "filter.h"
-GR_SWIG_BLOCK_MAGIC2(liquidDSP, filter);
+%include "ofdmflexframegen.h"
+GR_SWIG_BLOCK_MAGIC2(liquidDSP, ofdmflexframegen);

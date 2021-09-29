@@ -28,6 +28,6 @@ outputs:
 templates:
   imports: import liquidDSP
   make: |-
-      liquidDSP.filter(${in_type.size}, ${command})
+      liquidDSP.ofdmflexframegen(${in_type.size}, ${command})
 
 file_format: 1

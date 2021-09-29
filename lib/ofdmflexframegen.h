@@ -9,22 +9,23 @@ namespace gr {
   namespace liquidDSP {
 
     /*!
-     * \brief gr-pipe is a set of blocks for using any program as a
-     * source, sink or filter by using standard I/O pipes.
+     * \brief gr-liquidDSP is a set of blocks the famous Liquid DSP
+     * library.  https://liquidsdr.org
      *
-     * \ingroup pipe
+     * \ingroup liquidDSP
      */
-    class LIQUIDDSP_API filter : virtual public gr::block
+    class LIQUIDDSP_API ofdmflexframegen : virtual public gr::block
     {
      public:
-      typedef boost::shared_ptr<filter> sptr;
+      typedef boost::shared_ptr<ofdmflexframegen> sptr;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of pipe::filter.
+       * \brief Return a shared_ptr to a new instance of
+       * liquidDSP::ofdmflexframegen.
        *
-       * To avoid accidental use of raw pointers, pipe::filter's
+       * To avoid accidental use of raw pointers, liquidDSP::ofdmflexframegen's
        * constructor is in a private implementation
-       * class. pipe::filter::make is the public interface for
+       * class.  liquidDSP::ofdmflexframegen::make is the public interface for
        * creating new instances.
        */
       static sptr make(size_t in_item_sz, const char *cmd);
@@ -35,4 +36,3 @@ namespace gr {
 
   } // namespace liquidDSP
 } // namespace gr
-

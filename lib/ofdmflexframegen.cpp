@@ -12,7 +12,7 @@
 
 #include <liquid.h>
 
-#include "filter.h"
+#include "ofdmflexframegen.h"
 #include "debug.h"
 
 
@@ -50,7 +50,7 @@ struct mod_error_corr_scheme {
 namespace gr {
   namespace liquidDSP {
 
-    class filter_impl : public filter
+    class frame_impl : public ofdmflexframegen
     {
      private:
       size_t d_in_item_sz;
@@ -93,14 +93,7 @@ constexpr struct mod_error_corr_scheme
 };
 
 
-
-
-
-
-
-
-
-      ofdmflexframegen fg = { 0 };
+      ::ofdmflexframegen fg = { 0 };
       unsigned char *subcarrierAlloc = 0;
       // Sizes of stream input to output in this ratio:
         const size_t maxBytesIn = 1024;
@@ -150,8 +143,8 @@ constexpr struct mod_error_corr_scheme
 
 
      public:
-      filter_impl(size_t in_item_sz, const char *cmd);
-      ~filter_impl();
+      frame_impl(size_t in_item_sz, const char *cmd);
+      ~frame_impl();
 
       // Where all the action really happens
       void forecast (int noutput_items, gr_vector_int &ninput_items_required);
@@ -172,18 +165,19 @@ constexpr struct mod_error_corr_scheme
 //
 
 
-    filter::sptr
-    filter::make(size_t in_item_sz, const char *cmd)
+    ofdmflexframegen::sptr
+    ofdmflexframegen::make(size_t in_item_sz, const char *cmd)
     {
       return gnuradio::get_initial_sptr
-        (new filter_impl(in_item_sz, cmd));
+        (new frame_impl(in_item_sz, cmd));
     }
 
     /*
      * The private constructor
      */
-    filter_impl::filter_impl(size_t in_item_sz, const char *cmd)
-      : gr::block("filter",
+    frame_impl::frame_impl(size_t in_item_sz,
+            const char *cmd)
+      : gr::block("ofdmflexframegen",
               gr::io_signature::make(1, 1, in_item_sz),
               gr::io_signature::make(1, 1, sizeof(std::complex<float>))),
         d_in_item_sz (in_item_sz),
@@ -202,7 +196,7 @@ constexpr struct mod_error_corr_scheme
     /*
      * Our virtual destructor.
      */
-    filter_impl::~filter_impl()
+    frame_impl::~frame_impl()
     {
       long ret;
       char buf[PIPE_BUF];
@@ -244,19 +238,19 @@ constexpr struct mod_error_corr_scheme
     }
 
     bool
-    filter_impl::unbuffered() const
+    frame_impl::unbuffered() const
     {
       return d_unbuffered;
     }
 
     void
-    filter_impl::set_unbuffered(bool unbuffered)
+    frame_impl::set_unbuffered(bool unbuffered)
     {
       d_unbuffered = unbuffered;
     }
 
     void
-    filter_impl::set_fd_flags(int fd, long flags)
+    frame_impl::set_fd_flags(int fd, long flags)
     {
       long ret;
 
@@ -274,7 +268,7 @@ constexpr struct mod_error_corr_scheme
     }
 
     void
-    filter_impl::reset_fd_flags(int fd, long flag)
+    frame_impl::reset_fd_flags(int fd, long flag)
     {
       long ret;
 
@@ -292,7 +286,7 @@ constexpr struct mod_error_corr_scheme
     }
 
     void
-    filter_impl::create_pipe(int pipefd[2])
+    frame_impl::create_pipe(int pipefd[2])
     {
       int ret;
 
@@ -304,7 +298,7 @@ constexpr struct mod_error_corr_scheme
     }
 
     void
-    filter_impl::create_command_process(const char *cmd)
+    frame_impl::create_command_process(const char *cmd)
     {
       create_pipe(d_cmd_stdin_pipe);
       create_pipe(d_cmd_stdout_pipe);
@@ -354,13 +348,13 @@ constexpr struct mod_error_corr_scheme
     }
 
     void
-    filter_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
+    frame_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
       ninput_items_required[0] = (double)(noutput_items) / d_relative_rate;
     }
 
     int
-    filter_impl::read_process_output(uint8_t *out, int nitems)
+    frame_impl::read_process_output(uint8_t *out, int nitems)
     {
       size_t ret;
 
@@ -377,7 +371,7 @@ constexpr struct mod_error_corr_scheme
     }
 
     int
-    filter_impl::write_process_input(const uint8_t *in, int nitems)
+    frame_impl::write_process_input(const uint8_t *in, int nitems)
     {
       size_t ret;
 
@@ -397,7 +391,7 @@ constexpr struct mod_error_corr_scheme
     }
 
     int
-    filter_impl::general_work (int noutput_items,
+    frame_impl::general_work (int noutput_items,
                        gr_vector_int &ninput_items,
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
