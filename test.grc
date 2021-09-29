@@ -65,127 +65,24 @@ blocks:
     coordinate: [208, 20.0]
     rotation: 0
     state: enabled
-- name: analog_const_source_x_0
-  id: analog_const_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    const: '1'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: complex
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [408, 580.0]
-    rotation: 0
-    state: true
-- name: analog_sig_source_x_0_0
-  id: analog_sig_source_x
+- name: analog_fastnoise_source_x_0
+  id: analog_fastnoise_source_x
   parameters:
     affinity: ''
     alias: ''
     amp: '1'
     comment: ''
-    freq: '2000'
     maxoutbuf: '0'
     minoutbuf: '0'
-    offset: '0'
-    phase: '0'
-    samp_rate: samp_rate
+    noise_type: analog.GR_UNIFORM
+    samples: '8192'
+    seed: '0'
     type: complex
-    waveform: analog.GR_COS_WAVE
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [368, 68.0]
-    rotation: 0
-    state: true
-- name: analog_sig_source_x_0_0_0
-  id: analog_sig_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: '1'
-    comment: ''
-    freq: '-2000'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    offset: '0'
-    phase: '0'
-    samp_rate: samp_rate
-    type: complex
-    waveform: analog.GR_COS_WAVE
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [368, 196.0]
-    rotation: 0
-    state: true
-- name: analog_sig_source_x_0_0_0_0
-  id: analog_sig_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: '1'
-    comment: ''
-    freq: '1911'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    offset: '0'
-    phase: '0'
-    samp_rate: samp_rate
-    type: complex
-    waveform: analog.GR_COS_WAVE
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [372, 450]
-    rotation: 0
-    state: true
-- name: analog_sig_source_x_0_0_1
-  id: analog_sig_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: '1'
-    comment: ''
-    freq: '3210'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    offset: '0'
-    phase: '0'
-    samp_rate: samp_rate
-    type: complex
-    waveform: analog.GR_COS_WAVE
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [368, 324.0]
-    rotation: 0
-    state: true
-- name: blocks_add_xx_0
-  id: blocks_add_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '5'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [680, 256.0]
+    coordinate: [218, 320]
     rotation: 0
     state: true
 - name: blocks_message_debug_0
@@ -198,7 +95,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1187, 580]
+    coordinate: [1165, 501]
     rotation: 0
     state: true
 - name: blocks_message_debug_0_0
@@ -211,7 +108,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [968, 660]
+    coordinate: [899, 603]
     rotation: 0
     state: true
 - name: blocks_probe_rate_0
@@ -230,7 +127,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [906, 569]
+    coordinate: [851, 481]
     rotation: 0
     state: true
 - name: blocks_probe_rate_0_0
@@ -249,7 +146,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [656, 653]
+    coordinate: [518, 466]
     rotation: 0
     state: true
 - name: blocks_throttle_0
@@ -285,7 +182,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [721, 486]
+    coordinate: [517, 369]
     rotation: 0
     state: true
 - name: pfb_arb_resampler_xxx_0
@@ -369,13 +266,8 @@ blocks:
     state: true
 
 connections:
-- [analog_const_source_x_0, '0', blocks_add_xx_0, '4']
-- [analog_sig_source_x_0_0, '0', blocks_add_xx_0, '0']
-- [analog_sig_source_x_0_0_0, '0', blocks_add_xx_0, '1']
-- [analog_sig_source_x_0_0_0_0, '0', blocks_add_xx_0, '3']
-- [analog_sig_source_x_0_0_1, '0', blocks_add_xx_0, '2']
-- [blocks_add_xx_0, '0', blocks_probe_rate_0_0, '0']
-- [blocks_add_xx_0, '0', ofdmflexframegen_1, '0']
+- [analog_fastnoise_source_x_0, '0', blocks_probe_rate_0_0, '0']
+- [analog_fastnoise_source_x_0, '0', ofdmflexframegen_1, '0']
 - [blocks_probe_rate_0, rate, blocks_message_debug_0, print]
 - [blocks_probe_rate_0_0, rate, blocks_message_debug_0_0, print]
 - [blocks_throttle_0, '0', pfb_arb_resampler_xxx_0, '0']

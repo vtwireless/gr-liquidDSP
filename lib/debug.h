@@ -166,6 +166,8 @@ void qsSetSpewLevel(int level);
 // We let the highest verbosity macro flag win.
 //
 
+#define SPEW_LEVEL_DEBUG
+
 
 #ifdef SPEW_LEVEL_DEBUG // The highest verbosity
 #  ifndef SPEW_LEVEL_INFO

@@ -10,6 +10,7 @@ cd "$(dirname ${BASH_SOURCE[0]})"
 
 rm -rf ${prefix}
 rm -rf BUILD/
+rm -f test2.py
 
 mkdir -p BUILD
 
