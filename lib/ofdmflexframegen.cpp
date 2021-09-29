@@ -158,7 +158,7 @@ frame_impl::frame_impl(size_t in_item_sz, const char *cmd)
     ASSERT((d_out_item_sz % d_in_item_sz) == 0);
     ASSERT(d_out_item_sz >= d_in_item_sz);
 
-    if(setMode(1))
+    if(setMode(5))
         throw std::runtime_error("ofdmflexframegen failed");
 
     set_relative_rate(1.0);
