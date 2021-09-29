@@ -77,12 +77,12 @@ class frame_impl : public ofdmflexframegen {
         int setMode(uint32_t i);
 
         // Sizes of stream input to output in this ratio:
-        static const size_t maxBytesIn = 1024;
+        static const size_t maxBytesIn = 128;
         static const size_t maxBytesOut =
                 (NUM_SUBCARRIERS+CP_LEN)*maxBytesIn*
                 sizeof(std::complex<float>);
 
-        static const double relative_rate = maxBytesOut/maxBytesIn;
+        static const uint32_t relative_rate = maxBytesOut/maxBytesIn;
 
     public:
     
@@ -185,7 +185,7 @@ frame_impl::~frame_impl() {
 void frame_impl::forecast(int noutput_items,
         gr_vector_int &ninput_items_required) {
 
-    ninput_items_required[0] = ((double) noutput_items)/relative_rate
+    ninput_items_required[0] = ((double) noutput_items)/relative_rate;
 }
 
 
@@ -225,11 +225,7 @@ int frame_impl::general_work (int noutput_items,
         last_symbol = ofdmflexframegen_write(fg, obuf, COMPLEX_PER_WRITE);
         obuf += COMPLEX_PER_WRITE;
         numComplexOut += COMPLEX_PER_WRITE;
-    DSPEW("fg=%p n out=%zu  <= %zu", fg,
-            numComplexOut, maxBytesOut/sizeof(std::complex<float>));
     }
-
-    DSPEW();
 
     consume_each(lenIn / d_in_item_sz);
 
