@@ -19,11 +19,7 @@
 
 #include "ofdmflexframegen.h"
 #include "debug.h"
-
-
-#define NUM_SUBCARRIERS (64)
-#define CP_LEN  (16)
-#define TAPER_LEN (4)
+#include "common.h"
 
 
 
@@ -74,11 +70,6 @@ class frame_impl : public ofdmflexframegen {
         // so we add a counter by using this variable.
         uint64_t frameCount = 0;
 
-        // In this case gain is 10  ???
-        //static const float softGain = (powf(10.0F, -12.0F/20.0F));
-        const float softGain = (10.0);
-
-        int setMode(uint32_t i);
 
         // Sizes of stream input to output in this ratio:
         static const int maxBytesIn = 128;
@@ -87,6 +78,8 @@ class frame_impl : public ofdmflexframegen {
                 sizeof(std::complex<float>);
 
         static const uint32_t relative_rate = maxBytesOut/maxBytesIn;
+
+        int setMode(uint32_t i);
 
     public:
     

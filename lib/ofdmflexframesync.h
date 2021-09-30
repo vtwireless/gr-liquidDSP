@@ -14,20 +14,16 @@ namespace gr {
      *
      * \ingroup liquidDSP
      */
-    class LIQUIDDSP_API ofdmflexframegen : virtual public gr::block
+    class LIQUIDDSP_API ofdmflexframesync : virtual public gr::block
     {
      public:
 
       /*!
        * \brief Return a shared_ptr to a new instance of
-       * liquidDSP::ofdmflexframegen.
-       *
+       * liquidDSP::ofdmflexframesync.
        */
-      static boost::shared_ptr<ofdmflexframegen>
-          make(size_t in_item_sz);
-
-      // Set the modulation code scheme
-      virtual void set_mcs(int mcs) = 0;
+      static boost::shared_ptr<ofdmflexframesync>
+          make(size_t out_item_sz);
     };
 
   } // namespace liquidDSP

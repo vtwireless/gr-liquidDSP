@@ -1,0 +1,31 @@
+id: ofdmflexframesync
+label: ofdmflexframesync
+category: '[LiquidDSP]'
+
+parameters:
+- id: out_type
+  label: Output Type
+  dtype: enum
+  options: [complex, float, int, short, byte]
+  option_attributes:
+    size: [gr.sizeof_gr_complex, gr.sizeof_float, gr.sizeof_int,
+           gr.sizeof_short, gr.sizeof_char]
+  hide: part
+
+inputs:
+- label: in
+  domain: stream
+  dtype: complex
+
+outputs:
+- label: out
+  domain: stream
+  dtype: ${out_type}
+
+templates:
+  imports: import liquidDSP
+  make: |-
+      liquidDSP.ofdmflexframesync(${out_type.size})
+
+
+file_format: 1
