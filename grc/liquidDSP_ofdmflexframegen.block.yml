@@ -11,9 +11,24 @@ parameters:
     size: [gr.sizeof_gr_complex, gr.sizeof_float, gr.sizeof_int,
            gr.sizeof_short, gr.sizeof_char]
   hide: part
-- id: command
-  label: Command
-  dtype: string
+
+- id: mcs
+  label: MCS
+  dtype: enum
+  options: [ "0 - r1/2 BPSK",
+    "1 - r2/3 BPSK",
+    "2 - r1/2 QPSK",
+    "3 - r2/3 QPSK",
+    "4 - r8/9 QPSK",
+    "5 - r2/3 16-QAM",
+    "6 - r8/9 16-QAM",
+    "7 - r8/9 32-QAM",
+    "8 - r8/9 64-QAM",
+    "9 - r8/9 128-QAM",
+    "10 - r8/9 256-QAM",
+    "11 - uncoded 256-QAM" ]
+  option_attributes:
+    size: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 inputs:
 - label: in
@@ -28,6 +43,8 @@ outputs:
 templates:
   imports: import liquidDSP
   make: |-
-      liquidDSP.ofdmflexframegen(${in_type.size}, ${command})
+      liquidDSP.ofdmflexframegen(${in_type.size})
+      self.${id}.set_mcs(${mcs.size})
+
 
 file_format: 1

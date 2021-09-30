@@ -28,10 +28,10 @@ namespace gr {
        * creating new instances.
        */
       static boost::shared_ptr<ofdmflexframegen>
-          make(size_t in_item_sz, const char *cmd);
+          make(size_t in_item_sz);
 
-      // Why do I need this?
-      //virtual int setMode(uint32_t i) = 0;
+      // Set the modulation code scheme
+      virtual void set_mcs(int mcs) = 0;
     };
 
   } // namespace liquidDSP

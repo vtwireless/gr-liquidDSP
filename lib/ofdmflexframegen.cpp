@@ -60,8 +60,8 @@ namespace liquidDSP {
 class frame_impl : public ofdmflexframegen {
     
     private:
-        size_t d_in_item_sz;
-        size_t d_out_item_sz;
+        int d_in_item_sz;
+        int d_out_item_sz;
 
         ::ofdmflexframegen fg = 0;
         unsigned char *subcarrierAlloc = 0;
@@ -77,8 +77,8 @@ class frame_impl : public ofdmflexframegen {
         int setMode(uint32_t i);
 
         // Sizes of stream input to output in this ratio:
-        static const size_t maxBytesIn = 128;
-        static const size_t maxBytesOut =
+        static const int maxBytesIn = 128;
+        static const int maxBytesOut =
                 (NUM_SUBCARRIERS+CP_LEN)*maxBytesIn*
                 sizeof(std::complex<float>);
 
@@ -86,8 +86,10 @@ class frame_impl : public ofdmflexframegen {
 
     public:
     
-        frame_impl(size_t in_item_sz, const char *cmd);
+        frame_impl(size_t in_item_sz);
         ~frame_impl();
+
+        void set_mcs(int mcs);
 
         void forecast (int noutput_items, gr_vector_int &ninput_items_required);
 
@@ -99,9 +101,19 @@ class frame_impl : public ofdmflexframegen {
 
 
 boost::shared_ptr<ofdmflexframegen>
-ofdmflexframegen::make(size_t in_item_sz, const char *cmd) {
+ofdmflexframegen::make(size_t in_item_sz) {
 
-    return gnuradio::get_initial_sptr(new frame_impl(in_item_sz, cmd));
+    return gnuradio::get_initial_sptr(new frame_impl(in_item_sz));
+}
+
+
+void frame_impl::set_mcs(int mcs) {
+
+    // TODO: do I need a mutex?
+
+    if(mcs < 0) mcs = 0;
+    else if(mcs > 11) mcs = 11;
+    setMode(mcs);
 }
 
 
@@ -146,7 +158,7 @@ int frame_impl::setMode(uint32_t i)
 /*
  * The private constructor
  */
-frame_impl::frame_impl(size_t in_item_sz, const char *cmd)
+frame_impl::frame_impl(size_t in_item_sz)
         : gr::block("ofdmflexframegen",
               gr::io_signature::make(1, 1, in_item_sz),
               gr::io_signature::make(1, 1, sizeof(std::complex<float>))),
@@ -161,7 +173,7 @@ frame_impl::frame_impl(size_t in_item_sz, const char *cmd)
     if(setMode(5))
         throw std::runtime_error("ofdmflexframegen failed");
 
-    set_relative_rate(1.0);
+    set_relative_rate(relative_rate);
 }
 
 
@@ -196,10 +208,11 @@ int frame_impl::general_work (int noutput_items,
 
     
     std::complex<float> *obuf = (std::complex<float> *) output_items[0];
-    std::complex<float> *obufEnd = obuf +
-        maxBytesOut/sizeof(std::complex<float>);
 
-    size_t lenIn = ninput_items[0]*d_in_item_sz;
+    int lenIn = ninput_items[0]*d_in_item_sz;
+
+    if(lenIn < maxBytesIn/4) return 0;
+
     if(lenIn > maxBytesIn)
         lenIn = maxBytesIn;
 
@@ -210,12 +223,11 @@ int frame_impl::general_work (int noutput_items,
  
     bool last_symbol = false;
 
-#define COMPLEX_PER_WRITE  (512)
+#define COMPLEX_PER_WRITE  (8)
 
-    size_t numComplexOut = 0;
+    int numComplexOut = 0;
 
-    // The interface to ofdmflexframegen_write() is pretty fucked up.
-    // The documentation is not self consistent either.
+    // The interface to ofdmflexframegen_write()
     // https://liquidsdr.org/doc/ofdmflexframe/
     //
     while(!last_symbol) {
