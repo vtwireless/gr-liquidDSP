@@ -36,7 +36,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '3200'
+    value: '100'
   states:
     bus_sink: false
     bus_source: false
@@ -61,7 +61,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [110, 350]
+    coordinate: [122, 340]
     rotation: 0
     state: true
 - name: blocks_file_sink_0
@@ -127,7 +127,7 @@ blocks:
     comment: ''
     in_type: complex
     maxoutbuf: '0'
-    mcs: 0 - r1/2 BPSK
+    mcs: 9 - r8/9 128-QAM
     minoutbuf: '0'
   states:
     bus_sink: false

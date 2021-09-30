@@ -5,11 +5,16 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <pthread.h>
 
 #include <iostream>
 
 #include <gnuradio/io_signature.h>
 
+// Liquid-DSP docs:
+//
+// https://liquidsdr.org/doc/ofdmflexframe/
+//
 #include <liquid.h>
 
 #include "ofdmflexframegen.h"
@@ -21,10 +26,6 @@
 #define TAPER_LEN (4)
 
 
-// Liquid-DSP docs:
-//
-// https://liquidsdr.org/doc/ofdmflexframe/
-//
 
 struct scheme {
 
@@ -35,6 +36,7 @@ struct scheme {
     fec_scheme fec;
     const char *scheme_name;
 };
+
 
 static const struct scheme modes[] = {
 
@@ -58,10 +60,12 @@ namespace liquidDSP {
 
 
 class frame_impl : public ofdmflexframegen {
-    
+
     private:
         int d_in_item_sz;
         int d_out_item_sz;
+
+        gr::thread::mutex d_mutex;
 
         ::ofdmflexframegen fg = 0;
         unsigned char *subcarrierAlloc = 0;
@@ -109,18 +113,12 @@ ofdmflexframegen::make(size_t in_item_sz) {
 
 void frame_impl::set_mcs(int mcs) {
 
-    // TODO: do I need a mutex?
-
     if(mcs < 0) mcs = 0;
     else if(mcs > 11) mcs = 11;
     setMode(mcs);
 }
 
 
-// Liquid-DSP docs:
-//
-// https://liquidsdr.org/doc/ofdmflexframe/
-//
 int frame_impl::setMode(uint32_t i)
 {
     //std::cerr << "liquid DSP VERSION: " << liquid_version << std::endl;
@@ -139,6 +137,9 @@ int frame_impl::setMode(uint32_t i)
         ASSERT(subcarrierAlloc, "malloc() failed");
         ofdmframe_init_default_sctype(NUM_SUBCARRIERS, subcarrierAlloc);
     }
+
+    // Protect fg from general_work()
+    gr::thread::scoped_lock guard(d_mutex);
 
     if(fg) {
         ofdmflexframegen_setprops(fg, &fgprops);
@@ -201,12 +202,14 @@ void frame_impl::forecast(int noutput_items,
 }
 
 
-int frame_impl::general_work (int noutput_items,
+int frame_impl::general_work(int noutput_items,
         gr_vector_int &ninput_items,
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items) {
 
-    
+    // Protect fg from setMode()
+    gr::thread::scoped_lock guard(d_mutex);
+
     std::complex<float> *obuf = (std::complex<float> *) output_items[0];
 
     int lenIn = ninput_items[0]*d_in_item_sz;
