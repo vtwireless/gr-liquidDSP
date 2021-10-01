@@ -1,8 +1,6 @@
-/* -*- c++ -*- */
+#define API /*empty macro*/
 
-#define LIQUIDDSP_API
-
-%include "gnuradio.i" // the common stuff
+%include "gnuradio.i"
 
 //load generated python docstrings
 %include "liquidDSP_swig_doc.i"
@@ -14,5 +12,7 @@
 
 %include "ofdmflexframegen.h"
 GR_SWIG_BLOCK_MAGIC2(liquidDSP, ofdmflexframegen);
+
 %include "ofdmflexframesync.h"
 GR_SWIG_BLOCK_MAGIC2(liquidDSP, ofdmflexframesync);
+

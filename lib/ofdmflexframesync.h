@@ -2,8 +2,8 @@
 #include <gnuradio/attributes.h>
 
 
-#ifndef LIQUIDDSP_API
-#  define LIQUIDDSP_API __GR_ATTR_EXPORT
+#ifndef API
+#  define API __GR_ATTR_EXPORT
 #endif
 
 
@@ -16,7 +16,7 @@ namespace gr {
      *
      * \ingroup liquidDSP
      */
-    class LIQUIDDSP_API ofdmflexframesync : virtual public gr::block
+    class API ofdmflexframesync : virtual public gr::block
     {
      public:
 

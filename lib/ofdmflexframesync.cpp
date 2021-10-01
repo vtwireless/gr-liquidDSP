@@ -60,7 +60,7 @@ class sync_impl : public ofdmflexframesync {
         static const int maxBytesIn = (NUM_SUBCARRIERS+CP_LEN)*maxBytesOut*
                 sizeof(std::complex<float>);
 
-        static double relative_rate;
+        double relative_rate;
 
     public:
 
