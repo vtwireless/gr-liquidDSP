@@ -30,6 +30,7 @@ extern "C" {
 
 class sync_impl;
 
+static
 int
 frameSyncCallback(unsigned char *header, int header_valid,
                 unsigned char *payload, unsigned int payload_len,
@@ -48,7 +49,7 @@ class sync_impl : public ofdmflexframesync {
         int numLeftOverBytes;
         uint8_t leftOverBytes[32];
 
-        unsigned char *outBuffer;
+        uint8_t *outBuffer;
 
         //gr::thread::mutex d_mutex;
 
@@ -113,7 +114,7 @@ sync_impl::sync_impl(size_t out_item_sz)
     fs = ofdmflexframesync_create(NUM_SUBCARRIERS, CP_LEN,
             TAPER_LEN, subcarrierAlloc,
             (framesync_callback) frameSyncCallback,
-            this/*callback data*/);
+            this/*callback data passed to frameSyncCallback()*/);
     ASSERT(fs, "ofdmflexframesync_create() failed");
 }
 
@@ -136,7 +137,7 @@ sync_impl::~sync_impl() {
 void sync_impl::forecast(int noutput_items,
         gr_vector_int &ninput_items_required) {
 
-    ninput_items_required[0] = 32;
+    ninput_items_required[0] = 2*1024;
 }
 
 
@@ -145,15 +146,16 @@ int sync_impl::general_work(int noutput_items,
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items) {
 
-    std::complex<float> *in = (std::complex<float> *) input_items[0];
 
-    int numComplexIn = ninput_items[0];
+    outBuffer = (uint8_t *) output_items[0];
 
-    outBuffer = (unsigned char *) output_items[0];
+    ofdmflexframesync_execute(fs,
+            (std::complex<float> *) input_items[0],
+            ninput_items[0]);
 
-    ofdmflexframesync_execute(fs, in, numComplexIn);
+    consume_each(ninput_items[0]);
 
-    consume_each(numComplexIn);
+    ASSERT(bytesOut/d_out_item_sz <= noutput_items);
 
     return bytesOut/d_out_item_sz;
 }
@@ -163,6 +165,7 @@ int sync_impl::general_work(int noutput_items,
 
 extern "C" {
 
+static
 int
 frameSyncCallback(unsigned char *header, int header_valid,
                 unsigned char *payload, unsigned int payload_len,
@@ -174,7 +177,7 @@ frameSyncCallback(unsigned char *header, int header_valid,
     sync->bytesOut = 0;
 
 
-    if(payload_len <= 0) return 0;
+    if(payload_len <= 0 || !payload_valid) return 0;
 
     // In GNUradio stream buffers we can't write partial output types.
     // So, like if the output is floats we can't write 2 bytes, we have to
@@ -200,7 +203,7 @@ frameSyncCallback(unsigned char *header, int header_valid,
         // now we have enough data to write some output.  First write this
         // old data.
         //
-        DSPEW();
+        //DSPEW();
         memcpy(sync->outBuffer, sync->leftOverBytes, sync->numLeftOverBytes);
         sync->bytesOut += sync->numLeftOverBytes;
         sync->outBuffer += sync->numLeftOverBytes;
@@ -217,11 +220,14 @@ frameSyncCallback(unsigned char *header, int header_valid,
         uint8_t *from = payload + payload_len - sync->numLeftOverBytes;
         memcpy(sync->leftOverBytes, from, sync->numLeftOverBytes);
         payload_len -= sync->numLeftOverBytes;
+        //DSPEW("sync->numLeftOverBytes=%d", sync->numLeftOverBytes);
 
-    } else
+    } else {
         // We no longer have left over bytes.  Let it be known for the
         // next call.
         sync->numLeftOverBytes = 0;
+        //DSPEW("sync->numLeftOverBytes=0");
+    }
 
 
     memcpy(sync->outBuffer, payload, payload_len);
@@ -229,9 +235,9 @@ frameSyncCallback(unsigned char *header, int header_valid,
     sync->bytesOut += payload_len;
 
     // This must be true.  We only write out a multiple of the output
-    // type.  That's what all this bullshit code was for.
+    // type.  That's what all this bullshit code above was for.
     DASSERT(sync->bytesOut % sync->d_out_item_sz == 0);
-    
+
     return 0;
 }
 } // extern "c" {

@@ -70,14 +70,12 @@ class frame_impl : public ofdmflexframegen {
         // so we add a counter by using this variable.
         uint64_t frameCount = 0;
 
-
         // Sizes of stream input to output in this ratio:
         static const int maxBytesIn = 128;
-        static const int maxBytesOut =
-                (NUM_SUBCARRIERS+CP_LEN)*maxBytesIn*
-                sizeof(std::complex<float>);
+        static const int maxBytesOut = maxBytesIn*
+            (NUM_SUBCARRIERS+CP_LEN)*sizeof(std::complex<float>);
 
-        static const uint32_t relative_rate = maxBytesOut/maxBytesIn;
+        static constexpr double relative_rate = maxBytesOut/maxBytesIn;
 
         int setMode(uint32_t i);
 
@@ -206,8 +204,6 @@ int frame_impl::general_work(int noutput_items,
     std::complex<float> *obuf = (std::complex<float> *) output_items[0];
 
     int lenIn = ninput_items[0]*d_in_item_sz;
-
-    if(lenIn < maxBytesIn/4) return 0;
 
     if(lenIn > maxBytesIn)
         lenIn = maxBytesIn;
