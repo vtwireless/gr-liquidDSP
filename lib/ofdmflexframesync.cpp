@@ -55,12 +55,9 @@ class sync_impl : public ofdmflexframesync {
         unsigned char *subcarrierAlloc = 0;
         ::ofdmflexframesync fs = 0;
 
-        // Sizes of stream input to output in this ratio:
-        static const int maxBytesOut = 116;
+        static const int maxBytesOut = 128;
         static const int maxBytesIn = (NUM_SUBCARRIERS+CP_LEN)*maxBytesOut*
                 sizeof(std::complex<float>);
-
-        double relative_rate;
 
     public:
 
@@ -106,18 +103,17 @@ sync_impl::sync_impl(size_t out_item_sz)
     ASSERT((d_in_item_sz % d_out_item_sz) == 0);
     ASSERT(d_in_item_sz >= d_out_item_sz);
 
-    relative_rate = ((double) maxBytesOut)/
-            ((double) maxBytesIn);
+    set_relative_rate(0.005);
 
-    set_relative_rate(relative_rate);
 
     subcarrierAlloc = (unsigned char *) malloc(NUM_SUBCARRIERS);
     ASSERT(subcarrierAlloc, "malloc() failed");
+    ofdmframe_init_default_sctype(NUM_SUBCARRIERS, subcarrierAlloc);
 
     fs = ofdmflexframesync_create(NUM_SUBCARRIERS, CP_LEN,
             TAPER_LEN, subcarrierAlloc,
             (framesync_callback) frameSyncCallback,
-            0/*callback data*/);
+            this/*callback data*/);
     ASSERT(fs, "ofdmflexframesync_create() failed");
 }
 
@@ -140,7 +136,7 @@ sync_impl::~sync_impl() {
 void sync_impl::forecast(int noutput_items,
         gr_vector_int &ninput_items_required) {
 
-    ninput_items_required[0] = ((double) noutput_items)/relative_rate;
+    ninput_items_required[0] = 32;
 }
 
 
@@ -152,8 +148,6 @@ int sync_impl::general_work(int noutput_items,
     std::complex<float> *in = (std::complex<float> *) input_items[0];
 
     int numComplexIn = ninput_items[0];
-    if(numComplexIn > maxBytesIn/sizeof(std::complex<float>))
-        numComplexIn = maxBytesIn/sizeof(std::complex<float>);
 
     outBuffer = (unsigned char *) output_items[0];
 
@@ -176,8 +170,6 @@ frameSyncCallback(unsigned char *header, int header_valid,
                 sync_impl *sync) {
 
 
-    DSPEW();
-
     // Initialize for each call.  The bytes out for each call.
     sync->bytesOut = 0;
 
@@ -196,7 +188,8 @@ frameSyncCallback(unsigned char *header, int header_valid,
         // type.  We store the data in sync.leftOverBytes for a later
         // call to this function.
         //
-        memcpy(sync->leftOverBytes, payload, payload_len);
+        memcpy(sync->leftOverBytes + sync->numLeftOverBytes,
+                payload, payload_len);
         sync->numLeftOverBytes += payload_len;
         return 0;
     }
@@ -207,6 +200,7 @@ frameSyncCallback(unsigned char *header, int header_valid,
         // now we have enough data to write some output.  First write this
         // old data.
         //
+        DSPEW();
         memcpy(sync->outBuffer, sync->leftOverBytes, sync->numLeftOverBytes);
         sync->bytesOut += sync->numLeftOverBytes;
         sync->outBuffer += sync->numLeftOverBytes;
@@ -237,7 +231,7 @@ frameSyncCallback(unsigned char *header, int header_valid,
     // This must be true.  We only write out a multiple of the output
     // type.  That's what all this bullshit code was for.
     DASSERT(sync->bytesOut % sync->d_out_item_sz == 0);
-
+    
     return 0;
 }
 } // extern "c" {
