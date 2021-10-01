@@ -2,10 +2,7 @@
 ########################################################################
 # Include python install macros
 ########################################################################
-include(GrPython)
-if(NOT PYTHONINTERP_FOUND)
-    return()
-endif()
+include(GrPython REQUIRED)
 
 ########################################################################
 # Install python sources

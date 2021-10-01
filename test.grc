@@ -119,29 +119,28 @@ blocks:
     coordinate: [352, 364]
     rotation: 0
     state: true
-- name: ofdmflexframegen_0
-  id: ofdmflexframegen
+- name: ofdmflexframesync_0
+  id: ofdmflexframesync
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    in_type: complex
     maxoutbuf: '0'
-    mcs: 9 - r8/9 128-QAM
     minoutbuf: '0'
+    out_type: complex
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [596, 375]
+    coordinate: [626, 251]
     rotation: 0
     state: true
 
 connections:
 - [analog_fastnoise_source_x_0, '0', blocks_throttle_0, '0']
 - [blocks_throttle_0, '0', blocks_file_sink_0, '0']
-- [blocks_throttle_0, '0', ofdmflexframegen_0, '0']
-- [ofdmflexframegen_0, '0', blocks_file_sink_0_0, '0']
+- [blocks_throttle_0, '0', ofdmflexframesync_0, '0']
+- [ofdmflexframesync_0, '0', blocks_file_sink_0_0, '0']
 
 metadata:
   file_format: 1
