@@ -130,7 +130,7 @@ sync_impl::~sync_impl() {
         subcarrierAlloc = 0;
     }
 
-    std::cerr << "ofdmflexframesync process terminating" << std::endl;
+    INFO("ofdmflexframesync destructor called");;
 }
 
 
