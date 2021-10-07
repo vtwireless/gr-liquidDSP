@@ -69,7 +69,7 @@ blocks:
     fd: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
-    repeat: 'True'
+    repeat: 'False'
     type: byte
     vlen: '1'
   states:
