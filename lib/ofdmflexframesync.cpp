@@ -137,7 +137,7 @@ sync_impl::~sync_impl() {
 void sync_impl::forecast(int noutput_items,
         gr_vector_int &ninput_items_required) {
 
-    ninput_items_required[0] = 2*1024;
+    ninput_items_required[0] = 1024;
 }
 
 

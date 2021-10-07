@@ -8,9 +8,9 @@ options:
     description: ''
     gen_cmake: 'On'
     gen_linking: dynamic
-    generate_options: qt_gui
+    generate_options: no_gui
     hier_block_src_path: '.:'
-    id: test2
+    id: test
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -21,7 +21,7 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: Not titled yet
+    title: test
     window_size: ''
   states:
     bus_sink: false
@@ -44,46 +44,41 @@ blocks:
     coordinate: [208, 20.0]
     rotation: 0
     state: enabled
-- name: blocks_file_sink_0
-  id: blocks_file_sink
+- name: blocks_file_descriptor_sink_0
+  id: blocks_file_descriptor_sink
   parameters:
     affinity: ''
     alias: ''
-    append: 'False'
     comment: ''
-    file: out_xxx
+    fd: '1'
     type: byte
-    unbuffered: 'False'
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1197, 333]
+    coordinate: [1168, 348.0]
     rotation: 0
     state: true
-- name: blocks_file_source_0
-  id: blocks_file_source
+- name: blocks_file_descriptor_source_0
+  id: blocks_file_descriptor_source
   parameters:
     affinity: ''
     alias: ''
-    begin_tag: pmt.PMT_NIL
     comment: ''
-    file: in_xxx
-    length: '0'
+    fd: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
-    offset: '0'
-    repeat: 'False'
+    repeat: 'True'
     type: byte
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [344, 238]
+    coordinate: [320, 276.0]
     rotation: 0
-    state: enabled
+    state: true
 - name: ofdmflexframegen_0
   id: ofdmflexframegen
   parameters:
@@ -92,7 +87,7 @@ blocks:
     comment: ''
     in_type: byte
     maxoutbuf: '0'
-    mcs: 5 - r2/3 16-QAM
+    mcs: 8 - r8/9 64-QAM
     minoutbuf: '0'
   states:
     bus_sink: false
@@ -119,9 +114,9 @@ blocks:
     state: true
 
 connections:
-- [blocks_file_source_0, '0', ofdmflexframegen_0, '0']
+- [blocks_file_descriptor_source_0, '0', ofdmflexframegen_0, '0']
 - [ofdmflexframegen_0, '0', ofdmflexframesync_0, '0']
-- [ofdmflexframesync_0, '0', blocks_file_sink_0, '0']
+- [ofdmflexframesync_0, '0', blocks_file_descriptor_sink_0, '0']
 
 metadata:
   file_format: 1
