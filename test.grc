@@ -99,7 +99,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1168, 348.0]
+    coordinate: [1186, 306]
     rotation: 0
     state: true
 - name: blocks_file_descriptor_source_0
@@ -118,7 +118,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [88, 260.0]
+    coordinate: [59, 434]
     rotation: 0
     state: true
 - name: blocks_message_debug_1
@@ -131,7 +131,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1344, 480.0]
+    coordinate: [1276, 499]
     rotation: 0
     state: true
 - name: blocks_probe_rate_0
@@ -150,7 +150,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1128, 420.0]
+    coordinate: [1115, 409]
     rotation: 0
     state: true
 - name: ofdmflexframegen_0
@@ -167,7 +167,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [296, 396.0]
+    coordinate: [291, 390]
     rotation: 0
     state: true
 - name: ofdmflexframesync_0
@@ -183,7 +183,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [895, 272]
+    coordinate: [956, 356]
     rotation: 0
     state: true
 - name: pfb_arb_resampler_xxx_0
@@ -254,7 +254,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [656, 468.0]
+    coordinate: [673, 475]
     rotation: 0
     state: disabled
 - name: qtgui_sink_x_0_0
@@ -283,7 +283,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [432, 468.0]
+    coordinate: [437, 476]
     rotation: 0
     state: disabled
 - name: qtgui_sink_x_0_1
